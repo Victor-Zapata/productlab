@@ -1,47 +1,64 @@
-export default async function handler(req: Request): Promise<Response> {
-    if (req.method !== "POST") {
-        return new Response(JSON.stringify({ error: "Método no permitido" }), {
+export default async function handler(req: Request) {
+    // 🔒 Solo permitimos POST
+    if (req.method !== 'POST') {
+        return new Response(JSON.stringify({ error: 'Método no permitido' }), {
             status: 405,
+            headers: { 'Content-Type': 'application/json' },
         });
     }
 
     try {
-        const { title, description, prompt } = await req.json();
+        const body = await req.json();
+        const { title, description, prompt } = body;
 
-        const fullPrompt = `${prompt || "¿Qué mejoras podrías sugerirme para esta idea?"}
-  
-  Título: ${title}
-  Descripción: ${description}`;
+        const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
-        const response = await fetch("https://api.openai.com/v1/chat/completions", {
-            method: "POST",
+        if (!OPENAI_API_KEY) {
+            return new Response(JSON.stringify({ error: 'Falta la API Key' }), {
+                status: 500,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
+        const fullPrompt = prompt?.trim()
+            ? prompt
+            : `Mejorá esta idea: ${title} - ${description}`;
+
+        console.log('➡️ Enviando a OpenAI prompt:', fullPrompt);
+
+        const openaiRes = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
             headers: {
-                Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-                "Content-Type": "application/json",
+                Authorization: `Bearer ${OPENAI_API_KEY}`,
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                model: "gpt-3.5-turbo",
+                model: 'gpt-3.5-turbo',
                 messages: [
-                    { role: "system", content: "Sos un experto en innovación y productos." },
-                    { role: "user", content: fullPrompt },
+                    { role: 'system', content: 'Sos un experto en validar ideas de negocio.' },
+                    { role: 'user', content: fullPrompt },
                 ],
             }),
         });
 
-        const data = await response.json();
+        const json = await openaiRes.json();
 
-        if (!response.ok) {
-            console.error(data);
-            return new Response(JSON.stringify({ error: "Error al llamar a OpenAI" }), {
-                status: 500,
-            });
+        if (!json.choices || !json.choices[0]?.message?.content) {
+            throw new Error('Respuesta inesperada de OpenAI');
         }
 
-        return new Response(JSON.stringify({ suggestion: data.choices[0].message.content }));
+        const suggestion = json.choices[0].message.content;
+
+        return new Response(JSON.stringify({ suggestion }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+        });
+
     } catch (error) {
-        console.error("Error general:", error);
-        return new Response(JSON.stringify({ error: "Error inesperado" }), {
+        console.error('❌ Error en API OpenAI:', error);
+        return new Response(JSON.stringify({ error: 'Error en el servidor' }), {
             status: 500,
+            headers: { 'Content-Type': 'application/json' },
         });
     }
 }
