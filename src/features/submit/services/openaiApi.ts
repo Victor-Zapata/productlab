@@ -1,4 +1,6 @@
-export const getSuggestionFromOpenAI = async ({
+// src/features/submit/services/openaiApi.ts
+
+export async function getSuggestionFromOpenAI({
     title,
     description,
     prompt,
@@ -6,19 +8,24 @@ export const getSuggestionFromOpenAI = async ({
     title: string;
     description: string;
     prompt?: string;
-}) => {
-    const response = await fetch("/api/openai", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ title, description, prompt }),
-    });
+}): Promise<string> {
+    try {
+        const res = await fetch('/api/openai', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ title, description, prompt }),
+        });
 
-    if (!response.ok) {
-        throw new Error("Error con la API de OpenAI");
+        if (!res.ok) {
+            throw new Error('Error con la API de OpenAI');
+        }
+
+        const data = await res.json();
+        return data.suggestion;
+    } catch (error) {
+        console.error('Error al obtener sugerencia:', error);
+        throw error;
     }
-
-    const data = await response.json();
-    return data.suggestion;
-};
+}

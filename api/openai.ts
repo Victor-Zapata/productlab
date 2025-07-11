@@ -1,18 +1,20 @@
-export default async function handler(req: Request) {
-    // 🔒 Solo permitimos POST
-    if (req.method !== 'POST') {
-        return new Response(JSON.stringify({ error: 'Método no permitido' }), {
-            status: 405,
-            headers: { 'Content-Type': 'application/json' },
-        });
-    }
+export const config = {
+    runtime: 'edge', // ❗️clave para que funcione como función serverless en Vercel
+};
 
+export default async function handler(req: Request) {
     try {
+        if (req.method && req.method !== 'POST') {
+            return new Response(JSON.stringify({ error: 'Método no permitido' }), {
+                status: 405,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
         const body = await req.json();
         const { title, description, prompt } = body;
 
         const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-
         if (!OPENAI_API_KEY) {
             return new Response(JSON.stringify({ error: 'Falta la API Key' }), {
                 status: 500,
@@ -24,7 +26,10 @@ export default async function handler(req: Request) {
             ? prompt
             : `Mejorá esta idea: ${title} - ${description}`;
 
-        console.log('➡️ Enviando a OpenAI prompt:', fullPrompt);
+        console.log('➡️ Prompt a enviar:', fullPrompt);
+
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
 
         const openaiRes = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
@@ -39,12 +44,18 @@ export default async function handler(req: Request) {
                     { role: 'user', content: fullPrompt },
                 ],
             }),
+            signal: controller.signal,
         });
+
+        clearTimeout(timeout);
 
         const json = await openaiRes.json();
 
         if (!json.choices || !json.choices[0]?.message?.content) {
-            throw new Error('Respuesta inesperada de OpenAI');
+            return new Response(JSON.stringify({ error: 'Respuesta inválida de OpenAI' }), {
+                status: 502,
+                headers: { 'Content-Type': 'application/json' },
+            });
         }
 
         const suggestion = json.choices[0].message.content;
@@ -55,8 +66,8 @@ export default async function handler(req: Request) {
         });
 
     } catch (error) {
-        console.error('❌ Error en API OpenAI:', error);
-        return new Response(JSON.stringify({ error: 'Error en el servidor' }), {
+        console.error('❌ Error al llamar a OpenAI:', error);
+        return new Response(JSON.stringify({ error: 'Error en el servidor o timeout' }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' },
         });
