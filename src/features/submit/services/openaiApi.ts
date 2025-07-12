@@ -10,7 +10,7 @@ export async function getSuggestionFromOpenAI({
     prompt?: string;
 }): Promise<string> {
     try {
-        const res = await fetch('/api/openai', {
+        const res = await fetch('http://localhost:4000/api/openai', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

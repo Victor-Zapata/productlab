@@ -1,12 +1,28 @@
-type Props = {
-    children: React.ReactNode;
-} & React.ButtonHTMLAttributes<HTMLButtonElement>;
+// src/shared/components/Button.tsx
+import clsx from 'clsx'
+import type { ButtonHTMLAttributes, ReactNode } from 'react'
 
-export const Button = ({ children, ...rest }: Props) => (
+type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
+    children: ReactNode
+    variant?: 'primary' | 'secondary'
+}
+
+export const Button = ({
+    children,
+    variant = 'primary',
+    className,
+    ...rest
+}: Props) => (
     <button
+        className={clsx(
+            'px-6 py-3 rounded font-semibold transition',
+            variant === 'primary'
+                ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                : 'bg-white hover:bg-gray-100 text-indigo-600 border border-indigo-600',
+            className
+        )}
         {...rest}
-        className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
     >
         {children}
     </button>
-);
+)

@@ -1,54 +1,31 @@
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { IdeaCard } from '../components/IdeaCard';
-import { fetchIdeas } from '../data/mockIdeas';
-import type { Idea } from '../data/mockIdeas';
-
-import { Link } from 'react-router-dom';
-
-const containerVariants = {
-    hidden: {},
-    visible: {
-        transition: {
-            staggerChildren: 0.15,
-        },
-    },
-};
+// src/features/ideas/sections/ExploreIdeasSection.tsx
+import { useEffect } from 'react'
+import { useIdeasStore } from '../store/useIdeasStore'
+import { IdeaCard } from '../components/IdeaCard'
 
 export const ExploreIdeasSection = () => {
-    const [ideas, setIdeas] = useState<Idea[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { ideas, setIdeas } = useIdeasStore()
 
     useEffect(() => {
-        fetchIdeas().then((data) => {
-            setIdeas(data);
-            setLoading(false);
-        });
-    }, []);
+        fetch('http://localhost:4000/api/ideas')
+            .then((res) => res.json())
+            .then(setIdeas)
+            .catch(console.error)
+    }, [setIdeas])
 
-    if (loading) {
+    if (ideas.length === 0) {
         return (
-            <section className="py-12 px-4 md:px-16 text-center text-zinc-600 dark:text-zinc-300">
-                <div className="animate-spin h-8 w-8 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-                Cargando ideas...
-            </section>
-        );
+            <p className="text-center text-zinc-500 mt-8">
+                No hay ideas todavía. ¡Sé el primero en subir una!
+            </p>
+        )
     }
 
     return (
-        <section className="py-12 px-4 md:px-16">
-            <motion.div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-                initial="hidden"
-                animate="visible"
-                variants={containerVariants}
-            >
-                {ideas.map((idea) => (
-                    <Link to={`/idea/${idea.id}`} key={idea.id}>
-                        <IdeaCard idea={idea} />
-                    </Link>
-                ))}
-            </motion.div>
-        </section>
-    );
-};
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {ideas.map((idea) => (
+                <IdeaCard key={idea.id} idea={idea} />
+            ))}
+        </div>
+    )
+}

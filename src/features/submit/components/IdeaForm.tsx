@@ -1,117 +1,103 @@
-import { useState } from "react";
-import { Button } from "@/shared/components/Button";
-import toast from "react-hot-toast";
-import { getSuggestionFromOpenAI } from "../services/openaiApi";
-import { submitIdea } from "../services/submitApi";
-import { motion } from "framer-motion";
+// src/features/submit/components/IdeaForm.tsx
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-hot-toast'
+import { Button } from '@/shared/components/Button'
+import { getSuggestionFromOpenAI } from '../services/openaiApi'
+import { submitIdea } from '../services/submitApi'
+import { useIdeasStore } from '@/features/ideas/store/useIdeasStore'
+import type { Idea } from '@/features/ideas/store/useIdeasStore'
 
-export const IdeaForm = () => {
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
-    const [suggestion, setSuggestion] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [errors, setErrors] = useState<{ title?: string; description?: string }>({});
-    const [customPrompt, setCustomPrompt] = useState(
-        "¿Qué mejoras podrías sugerirme para esta idea?"
-    );
 
+type Props = { onSuccess?: () => void }
+
+export const IdeaForm = ({ onSuccess }: Props) => {
+    const [title, setTitle] = useState('')
+    const [description, setDescription] = useState('')
+    const [customPrompt, setCustomPrompt] = useState('')
+    const [suggestion, setSuggestion] = useState<string | null>(null)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
+    const addIdea = useIdeasStore((s) => s.addIdea)
+    const navigate = useNavigate()
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        const newErrors: typeof errors = {};
-        if (!title.trim()) newErrors.title = "El título es obligatorio.";
-        else if (title.length < 5) newErrors.title = "Debe tener al menos 5 caracteres.";
-        if (!description.trim()) newErrors.description = "La descripción es obligatoria.";
-        else if (description.length < 15) newErrors.description = "Debe tener al menos 15 caracteres.";
-
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-            toast.error("Revisá los campos.");
-            return;
+        e.preventDefault()
+        if (!title.trim() || !description.trim()) {
+            toast.error('Completá título y descripción')
+            return
         }
 
+        setIsSubmitting(true)
         try {
-            setLoading(true);
-            setErrors({});
-            toast.loading("Enviando idea...");
+            const aiSuggestion = await getSuggestionFromOpenAI({
+                title,
+                description,
+                prompt: customPrompt || undefined,
+            })
+            setSuggestion(aiSuggestion)
 
-            const res = await submitIdea({ title, description });
-            if (!res.success) throw new Error("Falló el envío");
+            const newIdeaInput: Omit<Idea, 'id' | 'createdAt' | 'votes'> = {
+                title,
+                description,
+                suggestion: aiSuggestion,
+                tags: [],
+            }
+            const saved = await submitIdea(newIdeaInput)
+            addIdea(saved)
+            toast.success('✅ Idea enviada con éxito')
 
-            toast.dismiss();
-            toast.success("¡Idea enviada con éxito!");
+            // limpiamos, dejamos la sugerencia visible
+            setTitle('')
+            setDescription('')
+            setCustomPrompt('')
 
-            setTitle("");
-            setDescription("");
-
-            toast.loading("Generando sugerencia con IA...");
-            const aiSuggestion = await getSuggestionFromOpenAI({ title, description, prompt: customPrompt });
-            toast.dismiss();
-            toast.success("¡Sugerencia generada!");
-            setSuggestion(aiSuggestion);
-        } catch (error) {
-            toast.dismiss();
-            toast.error("Ocurrió un error 😢");
-            console.error(error);
+            setTimeout(() => {
+                onSuccess ? onSuccess() : navigate('/')
+            }, 800)
+        } catch (err) {
+            console.error(err)
+            toast.error('❌ Error al enviar idea')
         } finally {
-            setLoading(false);
+            setIsSubmitting(false)
         }
-    };
+    }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6 w-full mx-auto">
-            <div>
-                <label className="block text-sm font-medium mb-1">Título de la idea</label>
-                <input
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className={`w-full px-4 py-2 rounded border bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition
-            ${errors.title ? "border-red-500" : "border-zinc-300 dark:border-zinc-700"}`}
-                    placeholder="Mi app para compartir gastos..."
-                />
-                {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <input
+                type="text"
+                placeholder="Título de la idea"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full p-3 rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900"
+            />
 
-            <div>
-                <label className="block text-sm font-medium mb-1">Descripción</label>
-                <textarea
-                    rows={4}
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    className={`w-full px-4 py-2 rounded border bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition
-            ${errors.description ? "border-red-500" : "border-zinc-300 dark:border-zinc-700"}`}
-                    placeholder="Contá en qué consiste, a quién ayuda, cómo se usaría..."
-                />
-                <div>
-                    <label className="block text-sm font-medium mb-1">Prompt para IA (opcional)</label>
-                    <input
-                        type="text"
-                        value={customPrompt}
-                        onChange={(e) => setCustomPrompt(e.target.value)}
-                        className="w-full px-4 py-2 rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white"
-                        placeholder="¿Qué mejoras podrías sugerirme para esta idea?"
-                    />
-                </div>
+            <textarea
+                placeholder="Descripción detallada"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={5}
+                className="w-full p-3 rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900"
+            />
 
-                {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
-            </div>
-
-            <Button type="submit" disabled={loading}>
-                {loading ? "Enviando..." : "Enviar Idea 🚀"}
-            </Button>
+            <textarea
+                placeholder="Prompt personalizado (opcional)"
+                value={customPrompt}
+                onChange={(e) => setCustomPrompt(e.target.value)}
+                rows={3}
+                className="w-full p-3 rounded border border-dashed border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 text-sm"
+            />
 
             {suggestion && (
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4 }}
-                    className="mt-6 p-4 rounded bg-yellow-100 dark:bg-yellow-900 text-zinc-800 dark:text-white"
-                >
-                    <strong>Sugerencia IA:</strong> {suggestion}
-                </motion.div>
+                <div className="p-4 bg-yellow-100 dark:bg-yellow-900 rounded text-zinc-800 dark:text-white">
+                    <strong>💡 Sugerencia IA:</strong> {suggestion}
+                </div>
             )}
+
+            <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Enviando...' : 'Enviar Idea 🚀'}
+            </Button>
         </form>
-    );
-};
+    )
+}
