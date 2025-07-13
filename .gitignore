@@ -25,7 +25,6 @@ dist-ssr
 
 .env.local
 
-.vercel
-/server/.env
+server/.env
 
 productlab/.git/
