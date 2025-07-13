@@ -27,4 +27,4 @@ dist-ssr
 
 server/.env
 
-productlab/.git/
+/productlab/.git/
