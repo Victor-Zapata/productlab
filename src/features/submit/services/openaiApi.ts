@@ -1,4 +1,3 @@
-// src/features/submit/services/openaiApi.ts
 
 export async function getSuggestionFromOpenAI({
     title,
