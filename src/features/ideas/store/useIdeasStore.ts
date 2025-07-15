@@ -1,36 +1,49 @@
 // src/features/ideas/store/useIdeasStore.ts
-import { create } from "zustand";
+import { create } from 'zustand';
 
 export interface Idea {
-    id: string;
-    title: string;
-    description: string;
-    suggestion: string;
-    tags: string[];
-    votes: number;
-    createdAt: string;
+  id: string;
+  title: string;
+  description: string;
+  suggestion: string;
+  tags: string[];
+  votes: number;
+  createdAt: string;
 }
 
-// Definimos la forma del estado
 interface IdeasState {
-    ideas: Idea[];
-    setIdeas: (ideas: Idea[]) => void;
-    addIdea: (idea: Idea) => void;
+  ideas: Idea[];
+  /** Reemplaza todo el listado (p.ej. al cargar o paginar) */
+  setIdeas: (ideas: Idea[]) => void;
+  /** Inserta una idea nueva al inicio */
+  addIdea: (idea: Idea) => void;
+  /** Actualiza solo el contador de votos de una idea existente */
+  updateVotes: (id: string, votes: number) => void;
 }
 
-// Creamos el hook con la firma genérica para que TypeScript infiera bien los tipos
 export const useIdeasStore = create<IdeasState>((set) => ({
-    ideas: [],
+  ideas: [],
 
-    // Reemplaza todo el array
-    setIdeas: (ideas: Idea[]) => {
-        set({ ideas });
-    },
+  setIdeas: (ideas) => {
+    set({ ideas });
+  },
 
-    // Inserta una idea al inicio
-    addIdea: (idea: Idea) => {
-        set((state) => ({
-            ideas: [idea, ...state.ideas],
-        }));
-    },
+  addIdea: (idea) => {
+    set((state) => ({
+      ideas: [idea, ...state.ideas],
+    }));
+  },
+
+  updateVotes: (id, votes) => {
+    set((state) => ({
+      ideas: state.ideas.map((i) =>
+        i.id === id
+          ? {
+              ...i,
+              votes,
+            }
+          : i,
+      ),
+    }));
+  },
 }));
