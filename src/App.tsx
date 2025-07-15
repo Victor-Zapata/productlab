@@ -2,7 +2,7 @@
 import { AppRouter } from './app/router';
 
 function App() {
-  return <AppRouter />;
+  return <AppRouterr />;
 }
 
 export default App;
