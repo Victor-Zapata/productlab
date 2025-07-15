@@ -1,0 +1,34 @@
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Idea {
+  id           String     @id @default(uuid())
+  title        String
+  description  String
+  suggestion   String
+  votes        Int        @default(0)
+  createdAt    DateTime   @default(now())
+  ideaTags     IdeaTags[]
+}
+
+model Tag {
+  id       String     @id @default(uuid())
+  name     String     @unique
+  ideaTags IdeaTags[]
+}
+
+model IdeaTags {
+  idea   Idea   @relation(fields: [ideaId], references: [id])
+  ideaId String
+  tag    Tag    @relation(fields: [tagId], references: [id])
+  tagId  String
+
+  @@id([ideaId, tagId])
+}
