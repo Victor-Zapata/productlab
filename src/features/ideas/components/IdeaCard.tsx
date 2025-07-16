@@ -1,4 +1,3 @@
-// src/features/ideas/components/IdeaCard.tsx
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useIdeasStore } from '../store/useIdeasStore';
@@ -12,20 +11,15 @@ const cardVariants = {
 type Props = { idea: Idea };
 
 export const IdeaCard = ({ idea }: Props) => {
-  // Estado local para bloquear el botón si ya votó
   const [voted, setVoted] = useState(() => {
     return localStorage.getItem(`voted_${idea.id}`) === '1';
   });
-
-  // Extraemos del store la función para actualizar votos
   const updateVotes = useIdeasStore((s) => s.updateVotes);
 
   const handleVote = async () => {
     if (voted) return;
     try {
-      const res = await fetch(`/api/ideas/${idea.id}/vote`, {
-        method: 'POST',
-      });
+      const res = await fetch(`/api/ideas/${idea.id}/vote`, { method: 'POST' });
       if (!res.ok) throw new Error('Falló el voto');
       const { votes } = await res.json();
       updateVotes(idea.id, votes);
@@ -43,19 +37,24 @@ export const IdeaCard = ({ idea }: Props) => {
       animate="visible"
       transition={{ duration: 0.4, ease: 'easeOut' }}
       whileHover={{ scale: 1.03 }}
-      className="bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-md border border-zinc-200 dark:border-zinc-800 transition-colors"
+      className={`
+        flex flex-col         /* <— hace al card un contenedor vertical completo */
+        h-full                /* <— ocupa toda la altura de la celda */
+        bg-white dark:bg-zinc-900
+        rounded-2xl p-6
+        shadow-md border border-zinc-200 dark:border-zinc-800
+        transition-colors
+      `}
     >
       <h3 className="text-xl font-semibold mb-2">{idea.title}</h3>
       <p className="text-sm text-zinc-600 dark:text-zinc-300">
         {idea.description}
       </p>
 
-      {/* Sugerencia de IA */}
       <p className="mt-4 text-xs italic text-zinc-500 dark:text-zinc-400">
         💡 {idea.suggestion}
       </p>
 
-      {/* Tags */}
       <div className="mt-4 flex flex-wrap gap-2">
         {idea.tags.map((tag) => (
           <span
@@ -67,14 +66,13 @@ export const IdeaCard = ({ idea }: Props) => {
         ))}
       </div>
 
-      {/* Sección de votos */}
       <div className="mt-4 flex items-center justify-between">
         <span className="text-sm font-medium">{idea.votes} 👍</span>
         <button
           onClick={handleVote}
           disabled={voted}
           className={`
-            px-3 py-1 rounded 
+            px-3 py-1 rounded
             text-white text-sm
             ${
               voted

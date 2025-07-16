@@ -1,5 +1,5 @@
 // src/app/router.tsx
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { LandingPage } from '@/features/landing/pages/LandingPage';
 import { SubmitIdeaPage } from '@/features/submit/pages/SubmitIdeaPage';
 import { MainLayout } from '@/shared/layouts/MainLayout';
