@@ -1,17 +1,40 @@
+import type { Question } from '@/types/question';
+import { motion } from 'framer-motion';
 
-// Si usas el alias `@` apunta a `/src`
-import type { Question } from '@/features/questions/types';
+import { Link } from 'react-router-dom';
 
-interface Props {
-  question: Question;
-}
-
-export const QuestionCard = ({ question }: Props) => {
-  return (
-    <div className="p-4 bg-white rounded shadow">
-      <h3 className="font-bold">{question.title}</h3>
-      <p className="text-sm text-gray-600">{question.body}</p>
-      <small className="text-xs text-gray-400">Creada: {question.createdAt}</small>
-    </div>
-  );
+const cardVariants = {
+  hover: { scale: 1.02, boxShadow: '0 10px 20px rgba(0,0,0,0.12)' },
 };
+
+type Props = { question: Question };
+
+export const QuestionCard = ({ question }: Props) => (
+  <Link to={`/question/${question.id}`}>
+    <motion.div
+      variants={cardVariants}
+      whileHover="hover"
+      className="
+        bg-white dark:bg-zinc-900 
+        rounded-2xl p-6 shadow-md border border-zinc-200 dark:border-zinc-800
+        flex flex-col justify-between
+        h-64            /* altura fija */
+        overflow-hidden /* recorta contenido */
+        transition-colors
+      "
+    >
+      <div className="space-y-2">
+        <h3 className="text-lg font-semibold line-clamp-2">
+          {question.question}
+        </h3>
+        <p className="text-sm text-zinc-600 dark:text-zinc-300 line-clamp-3">
+          {question.answer}
+        </p>
+      </div>
+      <footer className="mt-4 flex justify-between items-center text-xs text-zinc-500">
+        <span>{question.province}</span>
+        <span>{new Date(question.createdAt).toLocaleDateString()}</span>
+      </footer>
+    </motion.div>
+  </Link>
+);

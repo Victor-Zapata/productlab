@@ -41,3 +41,6 @@ model Question {
   createdAt  DateTime @default(now())
 }
 
+
+
+
