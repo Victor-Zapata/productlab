@@ -1,5 +1,5 @@
 // src/features/landing/pages/LandingPage.tsx
-import { ExploreIdeasSection } from '@/features/ideas/sections/ExploreIdeasSection';
+import { ExploreIdeasSection } from '@/features/questions/sections/ExploreQuestionsSection';
 import { Button } from '@/shared/components/Button';
 import { Link } from 'react-router-dom';
 

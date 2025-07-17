@@ -1,7 +1,7 @@
-export type Idea = {
-    id: string
-    title: string
-    description: string
-    votes: number
-    tags: string[]
-}
+export type Question = {
+  id: string;
+  question: string;
+  province: string;
+  answer: string;
+  createdAt: string;
+};

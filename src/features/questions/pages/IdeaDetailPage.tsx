@@ -1,6 +1,6 @@
 // src/features/ideas/pages/IdeaDetailPage.tsx
 import { useParams, useNavigate } from 'react-router-dom'
-import { useIdeasStore } from '../store/useIdeasStore'
+import { useIdeasStore } from '../store/useQuestionsStore'
 import { Button } from '@/shared/components/Button'
 
 export const IdeaDetailPage = () => {

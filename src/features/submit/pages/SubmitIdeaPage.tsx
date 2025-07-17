@@ -1,5 +1,5 @@
 // src/features/submit/pages/SubmitIdeaPage.tsx
-import { IdeaForm } from '../components/IdeaForm';
+import { QuestionForm } from '../components/QuestionForm';
 import { Button } from '@/shared/components/Button';
 import { useNavigate } from 'react-router-dom';
 
@@ -12,7 +12,7 @@ export const SubmitIdeaPage = () => {
                 ← Volver al Home
             </Button>
 
-            <IdeaForm onSuccess={() => navigate('/')} />
+            <QuestionForm onSuccess={() => navigate('/')} />
         </div>
     );
 };

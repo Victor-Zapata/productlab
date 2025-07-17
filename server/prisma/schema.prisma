@@ -32,3 +32,12 @@ model IdeaTags {
 
   @@id([ideaId, tagId])
 }
+
+model Question {
+  id         String   @id @default(uuid())
+  question   String
+  province   String
+  answer     String
+  createdAt  DateTime @default(now())
+}
+

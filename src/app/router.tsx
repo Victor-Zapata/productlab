@@ -1,20 +1,18 @@
-// src/app/router.tsx
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { LandingPage } from '@/features/landing/pages/LandingPage';
-import { SubmitIdeaPage } from '@/features/submit/pages/SubmitIdeaPage';
-import { MainLayout } from '@/shared/layouts/MainLayout';
-import { IdeaDetailPage } from '@/features/ideas/pages/IdeaDetailPage'
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { ExploreQuestionsSection } from '@/features/questions/sections/ExploreQuestionsSection';
+import { QuestionForm } from '@/features/submit/components/QuestionForm';
 
 export function AppRouter() {
   return (
     <BrowserRouter>
-      <MainLayout>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/idea/:id" element={<IdeaDetailPage />} />
-          <Route path="/submit" element={<SubmitIdeaPage />} />
-        </Routes>
-      </MainLayout>
+      <div className="p-4 flex justify-between">
+        <Link to="/">Inicio</Link>
+        <Link to="/submit">Nueva Consulta</Link>
+      </div>
+      <Routes>
+        <Route path="/" element={<ExploreQuestionsSection />} />
+        <Route path="/submit" element={<QuestionForm />} />
+      </Routes>
     </BrowserRouter>
   );
 }
