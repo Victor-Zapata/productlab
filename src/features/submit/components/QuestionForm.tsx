@@ -17,18 +17,30 @@ export const QuestionForm = () => {
       return;
     }
     setIsSubmitting(true);
+
     try {
-      // 1) Pedimos respuesta a OpenAI
-      const answer = await getAnswerFromOpenAI({ question, province });
-      // 2) Guardamos en backend
-      const saved = await submitQuestion({ question, province, answer });
-      // 3) Actualizamos store
+      // 1) Obtenemos respuesta e imagen de la IA
+      const { answer, imageUrl } = await getAnswerFromOpenAI({
+        question,
+        province,
+      });
+
+      // 2) Enviamos al backend con ambos campos por separado
+      const saved = await submitQuestion({
+        question,
+        province,
+        answer,
+        imageUrl,
+      });
+
+      // 3) Lo añadimos al store (Zustand)
       addQuestion(saved);
-      toast.success('✅ Pregunta procesada');
+
+      toast.success('✅ Consulta procesada con éxito');
       setQuestion('');
     } catch (err) {
       console.error(err);
-      toast.error('❌ Error al procesar');
+      toast.error('❌ Error al procesar la consulta');
     } finally {
       setIsSubmitting(false);
     }
@@ -37,6 +49,7 @@ export const QuestionForm = () => {
   return (
     <div className="max-w-xl mx-auto p-4 space-y-4">
       <h2 className="text-2xl font-bold">❓ Consulta de Tránsito</h2>
+
       <textarea
         rows={3}
         value={question}
@@ -44,6 +57,7 @@ export const QuestionForm = () => {
         placeholder="¿Puedo estacionar en doble fila en Córdoba?"
         className="w-full p-3 border rounded"
       />
+
       <select
         value={province}
         onChange={(e) => setProvince(e.target.value)}
@@ -57,6 +71,7 @@ export const QuestionForm = () => {
           ),
         )}
       </select>
+
       <Button onClick={handleSubmit} disabled={isSubmitting}>
         {isSubmitting ? 'Consultando…' : 'Enviar Consulta'}
       </Button>

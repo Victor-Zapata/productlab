@@ -3,5 +3,6 @@ export type Question = {
   question: string;
   province: string;
   answer: string;
+  imageUrl?: string;
   createdAt: string;
 };

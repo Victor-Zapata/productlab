@@ -38,8 +38,11 @@ model Question {
   question   String
   province   String
   answer     String
+  imageUrl   String? 
   createdAt  DateTime @default(now())
 }
+
+
 
 
 

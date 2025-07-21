@@ -1,5 +1,5 @@
 export const config = {
-    runtime: 'edge', // ❗️clave para que funcione como función serverless en Vercel
+    runtime: 'edge', 
 };
 
 export default async function handler(req: Request) {

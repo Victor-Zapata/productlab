@@ -1,6 +1,6 @@
 // src/features/questions/store/useQuestionsStore.ts
 import { create } from 'zustand';
-import type { Question } from '@/features/questions/types';
+import type { Question } from '@/types/question';
 
 interface QuestionsState {
   questions: Question[];
@@ -12,7 +12,7 @@ interface QuestionsState {
 export const useQuestionsStore = create<QuestionsState>((set) => ({
   questions: [],
   setQuestions: (questions) => set({ questions }),
-  addQuestion: (question) => set((s) => ({ questions: [question, ...s.questions] })),
+  addQuestion: (question) =>
+    set((s) => ({ questions: [question, ...s.questions] })),
   // …
 }));
-
