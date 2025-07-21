@@ -1,30 +1,26 @@
-// src/features/landing/pages/LandingPage.tsx
-import { ExploreIdeasSection } from '@/features/questions/sections/ExploreQuestionsSection';
+// src/features/questions/pages/HomePage.tsx
+import { useState } from 'react';
 import { Button } from '@/shared/components/Button';
-import { Link } from 'react-router-dom';
+import { Modal } from '@/shared/components/Modal';
+import { QuestionForm } from '@/features/submit/components/QuestionForm';
+import { ExploreQuestionsSection } from '@/features/questions/sections/ExploreQuestionsSection';
 
-export const LandingPage = () => (
-    <>
-        {/* HERO */}
-        <section className="py-12 md:py-20 px-4">
-            <div className="max-w-2xl mx-auto text-center space-y-6">
-                <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-                    Validá tu próxima gran idea con <span className="text-yellow-400">ProductLab</span>
-                </h1>
-                <p className="text-lg md:text-xl text-zinc-700">
-                    Subí tu idea, recibí feedback de IA y sumá votos en nuestra comunidad builder.
-                </p>
+export const LandingPage = () => {
+  const [open, setOpen] = useState(false);
 
-                {/* Link a /submit */}
-                <Link to="/submit" className="inline-block">
-                    <Button variant="secondary">
-                        Proponé tu idea 💡
-                    </Button>
-                </Link>
-            </div>
+  return (
+    <div className="max-w-6xl mx-auto px-4 md:px-8 py-8">
+      <h1 className="text-3xl font-bold text-center mb-6">Nueva Consulta</h1>
+      <div className="flex justify-center mb-12">
+        <Button onClick={() => setOpen(true)}>+ Hacer una consulta</Button>
+      </div>
 
-            {/* Listado dinámico de ideas */}
-            <ExploreIdeasSection />
-        </section>
-    </>
-);
+      <ExploreQuestionsSection />
+
+      <Modal isOpen={open} onClose={() => setOpen(false)}>
+        {/* Le pasamos un callback para cerrar tras éxito */}
+        <QuestionForm onSuccess={() => setOpen(false)} />
+      </Modal>
+    </div>
+  );
+};

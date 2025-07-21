@@ -1,11 +1,17 @@
+// src/features/submit/components/QuestionForm.tsx
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Button } from '@/shared/components/Button';
 import { getAnswerFromOpenAI } from '../services/openaiApi';
+import type { NewQuestionPayload } from '../services/submitApi';
 import { submitQuestion } from '../services/submitApi';
 import { useQuestionsStore } from '@/features/questions/store/useQuestionsStore';
 
-export const QuestionForm = () => {
+type Props = {
+  onSuccess: () => void;
+};
+
+export const QuestionForm = ({ onSuccess }: Props) => {
   const [question, setQuestion] = useState('');
   const [province, setProvince] = useState('Buenos Aires');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -16,40 +22,41 @@ export const QuestionForm = () => {
       toast.error('Ingresá tu pregunta de tránsito.');
       return;
     }
-    setIsSubmitting(true);
 
+    setIsSubmitting(true);
     try {
-      // 1) Obtenemos respuesta e imagen de la IA
-      const { answer, imageUrl } = await getAnswerFromOpenAI({
+      // 1) Llamamos a la API; ésta devuelve un objeto { answer, imageUrl? }
+      const { answer /*, imageUrl */ } = await getAnswerFromOpenAI({
         question,
         province,
       });
 
-      // 2) Enviamos al backend con ambos campos por separado
-      const saved = await submitQuestion({
+      // 2) Sólo usamos `answer` para el payload que espera el backend
+      const payload: NewQuestionPayload = {
         question,
         province,
         answer,
-        imageUrl,
-      });
+      };
 
-      // 3) Lo añadimos al store (Zustand)
+      // 3) Enviamos al servidor y recibimos la pregunta guardada
+      const saved = await submitQuestion(payload);
+
+      // 4) Actualizamos el store (Zustand)
       addQuestion(saved);
 
-      toast.success('✅ Consulta procesada con éxito');
+      toast.success('✅ Consulta creada');
       setQuestion('');
+      onSuccess();
     } catch (err) {
-      console.error(err);
-      toast.error('❌ Error al procesar la consulta');
+      console.error('Error al procesar:', err);
+      toast.error('❌ Error al procesar');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="max-w-xl mx-auto p-4 space-y-4">
-      <h2 className="text-2xl font-bold">❓ Consulta de Tránsito</h2>
-
+    <div className="space-y-4">
       <textarea
         rows={3}
         value={question}
@@ -57,7 +64,6 @@ export const QuestionForm = () => {
         placeholder="¿Puedo estacionar en doble fila en Córdoba?"
         className="w-full p-3 border rounded"
       />
-
       <select
         value={province}
         onChange={(e) => setProvince(e.target.value)}
@@ -71,7 +77,6 @@ export const QuestionForm = () => {
           ),
         )}
       </select>
-
       <Button onClick={handleSubmit} disabled={isSubmitting}>
         {isSubmitting ? 'Consultando…' : 'Enviar Consulta'}
       </Button>
