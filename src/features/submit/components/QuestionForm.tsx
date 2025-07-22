@@ -79,7 +79,7 @@ export const QuestionForm = ({ onSuccess }: Props) => {
         )}
       </select>
       <Button onClick={handleSubmit} disabled={isSubmitting}>
-        {isSubmitting ? 'Consultando…' : 'Enviar Consulta'}
+        {isSubmitting ? 'Consultando…' : 'Enviar Pregunta'}
       </Button>
     </div>
   );

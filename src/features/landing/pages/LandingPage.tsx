@@ -10,9 +10,9 @@ export const LandingPage = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 md:px-8 py-8">
-      <h1 className="text-3xl font-bold text-center mb-6">Nueva Consulta</h1>
+      <h1 className="text-4xl font-heading font-bold text-center mb-6">Normas de Tránsito</h1>
       <div className="flex justify-center mb-12">
-        <Button onClick={() => setOpen(true)}>+ Hacer una consulta</Button>
+        <Button onClick={() => setOpen(true)}>+ Hacer una pregunta</Button>
       </div>
 
       <ExploreQuestionsSection />
