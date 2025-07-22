@@ -70,7 +70,7 @@ Cuando respondas, sé preciso, cita artículo si aplica y responde sólo con la 
 
     // 4) Llamada a DALL·E
     const imageResponse = await openai.images.generate({
-      prompt: `Ilustración para: ${answer}`,
+      prompt: `Una fotografía realista de: ${answer}`,
       n: 1,
       size: '512x512',
     });

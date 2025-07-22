@@ -26,7 +26,7 @@ export const QuestionForm = ({ onSuccess }: Props) => {
     setIsSubmitting(true);
     try {
       // 1) Llamamos a la API; ésta devuelve un objeto { answer, imageUrl? }
-      const { answer /*, imageUrl */ } = await getAnswerFromOpenAI({
+      const { answer , imageUrl  } = await getAnswerFromOpenAI({
         question,
         province,
       });
@@ -36,6 +36,7 @@ export const QuestionForm = ({ onSuccess }: Props) => {
         question,
         province,
         answer,
+        imageUrl
       };
 
       // 3) Enviamos al servidor y recibimos la pregunta guardada

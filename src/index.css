@@ -2,7 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Opcional: personaliza fuentes */
 body {
-    @apply bg-gradient-to-br from-indigo-100 via-white to-purple-100 dark:from-zinc-900 dark:via-zinc-800 dark:to-zinc-900;
-    @apply text-zinc-900 dark:text-white min-h-screen overflow-x-hidden;
+  @apply font-sans;
+}
+h1, h2, h3, h4, h5, h6 {
+  @apply font-bold;
 }
