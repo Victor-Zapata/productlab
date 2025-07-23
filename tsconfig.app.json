@@ -22,5 +22,5 @@
     "tsBuildInfoFile": "./node_modules/.tsbuildinfo",
     "noEmit": true
   },
-  "include": ["src", "tailwind.config.js"]
+  "include": ["src", "tailwind.config.js", "server/services/unsplashApi.ts"]
 }
