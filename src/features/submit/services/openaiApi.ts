@@ -1,7 +1,10 @@
+// src/features/submit/services/openaiApi.ts
 export interface OpenAIResponse {
   answer: string;
   imageUrl: string;
 }
+
+const API_BASE = import.meta.env.VITE_API_URL;  
 
 export async function getAnswerFromOpenAI({
   question,
@@ -10,17 +13,11 @@ export async function getAnswerFromOpenAI({
   question: string;
   province: string;
 }): Promise<OpenAIResponse> {
-  const res = await fetch('/api/openai', {
+  const res = await fetch(`${API_BASE}/api/openai`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ question, province }),
   });
-
-  if (!res.ok) {
-    throw new Error('OpenAI API error');
-  }
-
-  const data = (await res.json()) as OpenAIResponse;
-  // Ahora data.answer es string y data.imageUrl es string
-  return data;
+  if (!res.ok) throw new Error('OpenAI API error');
+  return (await res.json()) as OpenAIResponse;
 }
