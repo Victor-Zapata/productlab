@@ -16,6 +16,9 @@ export async function submitQuestion(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
-  if (!res.ok) throw new Error('Error al guardar la consulta');
-  return await res.json();
+  const text = await res.text();
+  if (!res.ok) {
+    throw new Error(`Error guardando pregunta ${res.status}: ${text}`);
+  }
+  return JSON.parse(text);
 }
