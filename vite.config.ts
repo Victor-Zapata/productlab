@@ -11,7 +11,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:4000',  // <- ¡mismo puerto donde tu Express escucha!
+        target: process.env.VITE_API_URL,  // <- ¡mismo puerto donde tu Express escucha!
         changeOrigin: true,
         secure: false,
       },
