@@ -1,9 +1,11 @@
+// src/features/submit/services/openaiApi.ts
 export interface OpenAIResponse {
   answer: string;
   imageUrl?: string;
 }
 
-const API_BASE = import.meta.env.VITE_API_URL;
+// import.meta.env.VITE_API_URL siempre existe gracias al paso anterior
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 export async function getAnswerFromOpenAI({
   question,
@@ -12,27 +14,23 @@ export async function getAnswerFromOpenAI({
   question: string;
   province: string;
 }): Promise<OpenAIResponse> {
-  const res = await fetch(`${API_BASE}/api/openai`, {
+  const url = `${API_BASE}/api/openai`;
+  console.log('📡 Llamando a OpenAI en:', url);
+
+  const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ question, province }),
   });
 
-  // lee el texto de respuesta (puede ser JSON o un HTML de error)
   const text = await res.text();
-
   if (!res.ok) {
-    // lanza un error que incluya status y body para que lo veas en consola
     throw new Error(`OpenAI API error ${res.status}: ${text}`);
   }
 
-  // si todo OK, parsea el JSON
-  let data: OpenAIResponse;
   try {
-    data = JSON.parse(text);
+    return JSON.parse(text) as OpenAIResponse;
   } catch {
     throw new Error(`Respuesta no es JSON válido: ${text}`);
   }
-
-  return data;
 }

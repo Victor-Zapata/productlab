@@ -1,31 +1,26 @@
 // vite.config.ts
-import { defineConfig, loadEnv, type ConfigEnv } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
-export default ({ mode }: ConfigEnv) => {
-  // 1️⃣ Carga todas las variables de env de la carpeta raíz:
-  //    - .env
-  //    - .env.development
-  //    - .env.production
+export default ({ mode }: { mode: string }) => {
+  // 1️⃣ carga todas las vars de .env, .env.development o .env.production
   const env = loadEnv(mode, process.cwd(), '');
+
+  // 2️⃣ recupérate inmediatamente tu URL de backend
+  const API_URL = env.VITE_API_URL || 'http://localhost:4000';
+  console.log('🔗 API_URL =', API_URL);
 
   return defineConfig({
     plugins: [react()],
     resolve: {
-      alias: {
-        '@': path.resolve(__dirname, 'src'),
-      },
-    },
-    // 2️⃣ Inyecta el objeto env completo bajo process.env
-    define: {
-      'process.env': env,
+      alias: { '@': path.resolve(process.cwd(), 'src') },
     },
     server: {
       proxy: {
-        // 3️⃣ Durante `npm run dev`, cualquier `/api/...` irá a tu BACKEND real
+        // sólo si en tu front llamás a `/api/...`
         '/api': {
-          target: env.VITE_API_URL,
+          target: API_URL,
           changeOrigin: true,
           secure: false,
         },
