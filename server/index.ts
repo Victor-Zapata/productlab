@@ -8,6 +8,8 @@ import path from 'path';
 import { fetchPhoto } from './services/unsplashApi';
 
 dotenv.config();
+console.log('🔧 Directorio actual:', __dirname);
+console.log('🔧 Carpeta legal debería estar en:', path.resolve(__dirname, 'legal'));
 const app = express();
 app.use(cors());
 app.use(express.json());
