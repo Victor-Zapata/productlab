@@ -7,6 +7,8 @@ export interface OpenAIResponse {
 // import.meta.env.VITE_API_URL siempre existe gracias al paso anterior
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
+console.log('📡 Llamando a OpenAI en:', `${API_BASE}/api/openai`);
+
 export async function getAnswerFromOpenAI({
   question,
   province,
