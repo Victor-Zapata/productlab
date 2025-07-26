@@ -8,11 +8,13 @@ import path from 'path';
 import { fetchPhoto } from './services/unsplashApi';
 
 dotenv.config();
+console.log('📦 DATABASE_URL:', process.env.DATABASE_URL);
 console.log('🔧 Directorio actual:', __dirname);
 console.log('🔧 Carpeta legal debería estar en:', path.resolve(__dirname, 'legal'));
 const app = express();
 app.use(cors());
 app.use(express.json());
+
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const prisma = new PrismaClient();
