@@ -135,4 +135,10 @@ app.get('/api/questions', async (_req, res) => {
 app.get('/', (_req, res) => res.send('🟢 OK'));
 
 const PORT = process.env.PORT ? +process.env.PORT : 4000;
+// Middleware para loggear errores de rutas no encontradas
+app.use((req, res) => {
+  console.warn(`❌ Ruta no encontrada: ${req.method} ${req.originalUrl}`);
+  res.status(404).json({ error: 'Ruta no encontrada' });
+});
+
 app.listen(PORT, () => console.log(`🚀 API en :${PORT}`));
