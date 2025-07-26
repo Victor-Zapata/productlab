@@ -10,11 +10,13 @@ import { fetchPhoto } from './services/unsplashApi';
 dotenv.config();
 console.log('📦 DATABASE_URL:', process.env.DATABASE_URL);
 console.log('🔧 Directorio actual:', __dirname);
-console.log('🔧 Carpeta legal debería estar en:', path.resolve(__dirname, 'legal'));
+console.log(
+  '🔧 Carpeta legal debería estar en:',
+  path.resolve(__dirname, 'legal'),
+);
 const app = express();
 app.use(cors());
 app.use(express.json());
-
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const prisma = new PrismaClient();
@@ -36,6 +38,8 @@ async function getLawSnippet(province: string): Promise<string> {
     const filePath = path.resolve(__dirname, 'legal', `${key}.txt`);
     try {
       lawCache[key] = await readFile(filePath, 'utf8');
+      console.log(`🗂 Ley solicitada: ${province}`);
+      console.log(`📁 Buscando archivo en: ${filePath}`);
     } catch (err: any) {
       if (err.code === 'ENOENT') {
         throw new Error(`Ley de tránsito para “${province}” no encontrada.`);
@@ -43,6 +47,7 @@ async function getLawSnippet(province: string): Promise<string> {
       throw err;
     }
   }
+
   return lawCache[key];
 }
 
